@@ -1,9 +1,12 @@
 import face_recognition
+import freenect
 import cv2
 import numpy as np
+import frame_convert2
 
+freenect.sync_get_video()
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
-# other example, but it includes some basic performance tweaks to make things run a lot faster:
+# other example, bfreenect.sout it includes some basic performance tweaks to make things run a lot faster:
 #   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
 #   2. Only detect faces in every other frame of video.
 
@@ -12,7 +15,7 @@ import numpy as np
 # specific demo. If you have trouble installing it, try any of the other demos that don't require it instead.
 
 # Get a reference to webcam #0 (the default one)
-video_capture = cv2.VideoCapture(0)
+#video_capture = cv2.VideoCapture(0)
 
 # Load a sample picture and learn how to recognize it.
 obama_image = face_recognition.load_image_file("Robert.jpg")
@@ -37,13 +40,20 @@ face_locations = []
 face_encodings = []
 face_names = []
 process_this_frame = True
+def get_depth():
+    return frame_convert2.pretty_depth_cv(freenect.sync_get_depth()[0])
+
+
+def get_video():
+    return frame_convert2.video_cv(freenect.sync_get_video()[0])
 
 while True:
     # Grab a single frame of video
-    ret, frame = video_capture.read()
+    #ret, frame = video_capture.read()
+    frame = np.array(get_video())
 
     # Resize frame of video to 1/4 size for faster face recognition processing
-    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+    small_frame = cv2.resize(frame, (0, 0), fx=1, fy=1)
 
     # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
     rgb_small_frame = small_frame[:, :, ::-1]
@@ -53,7 +63,7 @@ while True:
         # Find all the faces and face encodings in the current frame of video
         face_locations = face_recognition.face_locations(rgb_small_frame)
         face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
-
+        face_landmarks_list = face_recognition.face_landmarks(rgb_small_frame)
         face_names = []
         for face_encoding in face_encodings:
             # See if the face is a match for the known face(s)
@@ -73,16 +83,19 @@ while True:
 
             face_names.append(name)
 
+        for face_landmarks in face_landmarks_list:
+            lip_points = [(x*4, y*4) for x,y in face_landmarks['top_lip']]
+            cv2.fillConvexPoly(frame, np.array(lip_points, 'int32'), (0, 0, 255))
     process_this_frame = not process_this_frame
 
 
     # Display the results
     for (top, right, bottom, left), name in zip(face_locations, face_names):
         # Scale back up face locations since the frame we detected in was scaled to 1/4 size
-        top *= 4
+        """top *= 4
         right *= 4
         bottom *= 4
-        left *= 4
+        left *= 4 """
 
         # Draw a box around the face
         cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
