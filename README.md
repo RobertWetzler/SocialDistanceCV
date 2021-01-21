@@ -26,10 +26,10 @@ To detect when someone is wearing a mask, we trained a model using a dataset of 
 
 ### Detecting Social Distancing
 For every frame:
-1. Our program detects all people in the Kinect's camera. To do this, we used YOLO object detection model to find all people in frame (yolo.h5 file not included in repo). 
-2. For each detected person, our program reads the distance of their center from the Kinect's IR camera.
-3. Using an equation based on the Kinect's FOV and the detected distances, the screenspace coordinate of each person is converted to a worldspace coordinate.
-4. The distance between each person is calculated. If the distance is less than 6 feet, the message "Stay 6 feet apart" is printed.
+1. Our program detects all people in the Kinect's camera. To do this, we used a YOLO object detection model to find all people in frame (yolo.h5 file not included in repo). 
+2. For each detected person, our program reads their distance from the camera using the Kinect's IR image frame.
+3. Using an equation based on the Kinect's FOV and the detected distances, the screenspace coordinate + distance of each person is converted to a worldspace coordinate.
+4. The distance between each person is calculated. If the distance is less than 6 feet, the message "MOVE 6 FEET APART!" is printed.
 
 ![DistanceDetection](/images/distance_detection.png)
 
