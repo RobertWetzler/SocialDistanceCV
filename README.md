@@ -33,4 +33,4 @@ For every frame:
 
 ![DistanceDetection](/images/distance_detection.png)
 
-*Credit to Devon Brandt (right), Robert's roomate, for helping test and present our project.*
+*Credit to Devon Brandt (right), Robert's roommate, for helping test and present our project.*
